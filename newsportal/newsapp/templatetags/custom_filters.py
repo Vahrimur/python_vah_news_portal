@@ -2,7 +2,7 @@ from django import template
 
 register = template.Library()
 
-SWEAR_WORDS = {'хуй', 'пизд', 'бля', 'еб', 'ёб', 'пидор'}
+SWEAR_WORDS = {'хуй', 'хуе', 'хуя', 'пизд', 'бля', 'еб', 'ёб', 'пидор'}
 
 
 class FilterException(Exception):
