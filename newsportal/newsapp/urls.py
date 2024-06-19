@@ -1,5 +1,6 @@
 from django.urls import path
-from .views import PostsList, PostDetail, PostsSearch, NWCreate, NWUpdate, NWDelete, ARCreate, ARUpdate, ARDelete
+from .views import PostsList, PostDetail, PostsSearch, NWCreate, NWUpdate, NWDelete, ARCreate, ARUpdate, ARDelete, \
+    author_now
 
 urlpatterns = [
     # Путь '' - для работы со всеми постами: новостями и статьями
@@ -14,4 +15,5 @@ urlpatterns = [
     path('articles/create/', ARCreate.as_view(), name='ar_create'),
     path('articles/<int:pk>/update/', ARUpdate.as_view(), name='ar_update'),
     path('articles/<int:pk>/delete/', ARDelete.as_view(), name='ar_delete'),
+    path('author_now/', author_now, name='author_now'),
 ]

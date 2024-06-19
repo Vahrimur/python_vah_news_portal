@@ -1,9 +1,13 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.contrib.auth.models import Group
 
 from .filters import PostFilter
 from .forms import PostForm
-from .models import Post
+from .models import Post, Author
 
 
 class PostsList(ListView):
@@ -12,6 +16,11 @@ class PostsList(ListView):
     template_name = 'posts.html'
     context_object_name = 'posts'
     paginate_by = 10
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['is_not_author'] = not self.request.user.groups.filter(name="authors").exists()
+        return context
 
 
 class PostDetail(DetailView):
@@ -38,7 +47,9 @@ class PostsSearch(ListView):
         return context
 
 
-class NWCreate(CreateView):
+class NWCreate(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
+    raise_exception = True
+    permission_required = ('newsapp.add_post',)
     form_class = PostForm
     model = Post
     template_name = 'nw_post_edit.html'
@@ -49,7 +60,9 @@ class NWCreate(CreateView):
         return super().form_valid(form)
 
 
-class NWUpdate(UpdateView):
+class NWUpdate(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+    raise_exception = True
+    permission_required = ('newsapp.change_post',)
     form_class = PostForm
     model = Post
     template_name = 'nw_post_edit.html'
@@ -59,7 +72,9 @@ class NWUpdate(UpdateView):
         return queryset.filter(categoryType='NW')
 
 
-class NWDelete(DeleteView):
+class NWDelete(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
+    raise_exception = True
+    permission_required = ('newsapp.delete_post',)
     model = Post
     template_name = 'nw_delete.html'
     success_url = reverse_lazy('post_list')
@@ -69,7 +84,9 @@ class NWDelete(DeleteView):
         return queryset.filter(categoryType='NW')
 
 
-class ARCreate(CreateView):
+class ARCreate(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
+    raise_exception = True
+    permission_required = ('newsapp.add_post',)
     form_class = PostForm
     model = Post
     template_name = 'ar_post_edit.html'
@@ -80,7 +97,9 @@ class ARCreate(CreateView):
         return super().form_valid(form)
 
 
-class ARUpdate(UpdateView):
+class ARUpdate(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+    raise_exception = True
+    permission_required = ('newsapp.change_post',)
     form_class = PostForm
     model = Post
     template_name = 'ar_post_edit.html'
@@ -90,7 +109,9 @@ class ARUpdate(UpdateView):
         return queryset.filter(categoryType='AR')
 
 
-class ARDelete(DeleteView):
+class ARDelete(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
+    raise_exception = True
+    permission_required = ('newsapp.delete_post',)
     model = Post
     template_name = 'ar_delete.html'
     success_url = reverse_lazy('post_list')
@@ -98,3 +119,12 @@ class ARDelete(DeleteView):
     def get_queryset(self):
         queryset = super(ARDelete, self).get_queryset()
         return queryset.filter(categoryType='AR')
+
+
+def author_now(request):
+    user = request.user
+    author_group = Group.objects.get(name="authors")
+    if not user.groups.filter(name='authors').exists():
+        user.groups.add(author_group)
+        Author.objects.create(authorUser=user)
+    return redirect("posts_list")

@@ -9,18 +9,42 @@ News & articles
 {% block content %}
 <h1>Новости и статьи</h1>
 <hr>
+{% if perms.newsapp.add_post %}
+<a href="{% url 'nw_create' %}">Добавить новость</a>
+<a href="{% url 'ar_create' %}">Добавить статью</a>
+{% endif %}
 {% if posts %}
+{% if is_not_author %}
+<button><a href="{% url 'author_now' %}">Стать автором></a></button>
+{% endif %}
 <table>
     <tr>
         <td><b>Заголовок</b></td>
         <td><b>Дата публикации</b></td>
         <td><b>Превью</b></td>
+        {% if perms.newsapp.change_post or perms.newsapp.delete_post %}
+        <td><b>Действия</b></td>
+        {% endif %}
     </tr>
     {% for p in posts %}
     <tr>
         <td>{{ p.title|censor }}</td>
         <td>{{ p.dateCreation|date:'d.M.Y' }}</td>
         <td>{{ p.text|truncatewords:20|censor }}</td>
+        <td>
+            {% if perms.newsapp.change_post and p.categoryType == 'NW' %}
+            <a href="{% url 'nw_update' pk=p.id %}">Изменить</a>
+            {% endif %}
+            {% if perms.newsapp.change_post and p.categoryType == 'AR' %}
+            <a href="{% url 'ar_update' pk=p.id %}">Изменить</a>
+            {% endif %}
+            {% if perms.newsapp.delete_post and p.categoryType == 'NW' %}
+            <a href="{% url 'nw_delete' p.id %}">Удалить</a>
+            {% endif %}
+            {% if perms.newsapp.delete_post and p.categoryType == 'AR' %}
+            <a href="{% url 'ar_delete' p.id %}">Удалить</a>
+            {% endif %}
+        </td>
     </tr>
     {% endfor %}
 </table>
