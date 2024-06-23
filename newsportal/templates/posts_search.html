@@ -33,16 +33,16 @@ News & articles Search
         <td>{{ p.dateCreation|date:'d.M.Y' }}</td>
         <td>{{ p.text|truncatewords:20|censor }}</td>
         <td>
-            {% if perms.newsapp.change_post and p.categoryType == 'NW' %}
+            {% if perms.newsapp.change_post and p.categoryType == 'NW' and p.author == user.author %}
             <a href="{% url 'nw_update' pk=p.id %}">Изменить</a>
             {% endif %}
-            {% if perms.newsapp.change_post and p.categoryType == 'AR' %}
+            {% if perms.newsapp.change_post and p.categoryType == 'AR' and p.author == user.author %}
             <a href="{% url 'ar_update' pk=p.id %}">Изменить</a>
             {% endif %}
-            {% if perms.newsapp.delete_post and p.categoryType == 'NW' %}
+            {% if perms.newsapp.delete_post and p.categoryType == 'NW' and p.author == user.author %}
             <a href="{% url 'nw_delete' p.id %}">Удалить</a>
             {% endif %}
-            {% if perms.newsapp.delete_post and p.categoryType == 'AR' %}
+            {% if perms.newsapp.delete_post and p.categoryType == 'AR' and p.author == user.author %}
             <a href="{% url 'ar_delete' p.id %}">Удалить</a>
             {% endif %}
         </td>

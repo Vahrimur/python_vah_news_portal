@@ -23,6 +23,7 @@ class PostsList(ListView):
         return context
 
 
+
 class PostDetail(DetailView):
     model = Post
     template_name = 'post.html'
@@ -52,11 +53,12 @@ class NWCreate(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     permission_required = ('newsapp.add_post',)
     form_class = PostForm
     model = Post
-    template_name = 'nw_post_edit.html'
+    template_name = 'nw_post.html'
 
     def form_valid(self, form):
         post = form.save(commit=False)
         post.categoryType = 'NW'
+        post.author = self.request.user.author
         return super().form_valid(form)
 
 
@@ -65,11 +67,16 @@ class NWUpdate(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     permission_required = ('newsapp.change_post',)
     form_class = PostForm
     model = Post
-    template_name = 'nw_post_edit.html'
+    template_name = 'nw_edit.html'
 
     def get_queryset(self):
         queryset = super(NWUpdate, self).get_queryset()
         return queryset.filter(categoryType='NW')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['post_author'] = Post.objects.get(pk=self.kwargs.get('pk')).author
+        return context
 
 
 class NWDelete(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
@@ -83,17 +90,23 @@ class NWDelete(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
         queryset = super(NWDelete, self).get_queryset()
         return queryset.filter(categoryType='NW')
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['post_author'] = Post.objects.get(pk=self.kwargs.get('pk')).author
+        return context
+
 
 class ARCreate(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     raise_exception = True
     permission_required = ('newsapp.add_post',)
     form_class = PostForm
     model = Post
-    template_name = 'ar_post_edit.html'
+    template_name = 'ar_post.html'
 
     def form_valid(self, form):
         post = form.save(commit=False)
         post.categoryType = 'AR'
+        post.author = self.request.user.author
         return super().form_valid(form)
 
 
@@ -102,11 +115,16 @@ class ARUpdate(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     permission_required = ('newsapp.change_post',)
     form_class = PostForm
     model = Post
-    template_name = 'ar_post_edit.html'
+    template_name = 'ar_edit.html'
 
     def get_queryset(self):
         queryset = super(ARUpdate, self).get_queryset()
         return queryset.filter(categoryType='AR')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['post_author'] = Post.objects.get(pk=self.kwargs.get('pk')).author
+        return context
 
 
 class ARDelete(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
@@ -119,6 +137,11 @@ class ARDelete(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     def get_queryset(self):
         queryset = super(ARDelete, self).get_queryset()
         return queryset.filter(categoryType='AR')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['post_author'] = Post.objects.get(pk=self.kwargs.get('pk')).author
+        return context
 
 
 def author_now(request):
