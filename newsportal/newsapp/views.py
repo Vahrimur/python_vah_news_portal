@@ -1,13 +1,16 @@
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.mixins import PermissionRequiredMixin
-from django.shortcuts import redirect
+from django.db.models import Exists, OuterRef
+from django.shortcuts import redirect, get_object_or_404, render
 from django.urls import reverse_lazy
+from django.views.decorators.csrf import csrf_protect
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.models import Group
 
 from .filters import PostFilter
 from .forms import PostForm
-from .models import Post, Author
+from .models import Post, Author, Category, Subscription
 
 
 class PostsList(ListView):
@@ -21,7 +24,6 @@ class PostsList(ListView):
         context = super().get_context_data(**kwargs)
         context['is_not_author'] = not self.request.user.groups.filter(name="authors").exists()
         return context
-
 
 
 class PostDetail(DetailView):
@@ -84,7 +86,7 @@ class NWDelete(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     permission_required = ('newsapp.delete_post',)
     model = Post
     template_name = 'nw_delete.html'
-    success_url = reverse_lazy('post_list')
+    success_url = reverse_lazy('posts_list')
 
     def get_queryset(self):
         queryset = super(NWDelete, self).get_queryset()
@@ -132,7 +134,7 @@ class ARDelete(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     permission_required = ('newsapp.delete_post',)
     model = Post
     template_name = 'ar_delete.html'
-    success_url = reverse_lazy('post_list')
+    success_url = reverse_lazy('posts_list')
 
     def get_queryset(self):
         queryset = super(ARDelete, self).get_queryset()
@@ -151,3 +153,34 @@ def author_now(request):
         user.groups.add(author_group)
         Author.objects.create(authorUser=user)
     return redirect("posts_list")
+
+
+@login_required
+@csrf_protect
+def subscriptions(request):
+    if request.method == 'POST':
+        category_id = request.POST.get('category_id')
+        category = Category.objects.get(id=category_id)
+        action = request.POST.get('action')
+
+        if action == 'subscribe':
+            Subscription.objects.create(user=request.user, category=category)
+        elif action == 'unsubscribe':
+            Subscription.objects.filter(
+                user=request.user,
+                category=category,
+            ).delete()
+
+    categories_with_subscriptions = Category.objects.annotate(
+        user_subscribed=Exists(
+            Subscription.objects.filter(
+                user=request.user,
+                category=OuterRef('pk'),
+            )
+        )
+    ).order_by('name')
+    return render(
+        request,
+        'subscriptions.html',
+        {'categories': categories_with_subscriptions},
+    )

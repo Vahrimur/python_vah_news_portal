@@ -28,21 +28,21 @@ News & articles
     </tr>
     {% for p in posts %}
     <tr>
-        <td>{{ p.title|censor }}</td>
+        <td><a href="{% url 'post_detail' pk=p.id %}">{{ p.title|censor }}</a></td>
         <td>{{ p.dateCreation|date:'d.M.Y' }}</td>
         <td>{{ p.text|truncatewords:20|censor }}</td>
         <td>
-                {% if perms.newsapp.change_post and p.categoryType == 'NW' and p.author == user.author %}
-                <a href="{% url 'nw_update' pk=p.id %}">Изменить</a>
-                {% endif %}
-                {% if perms.newsapp.change_post and p.categoryType == 'AR' and p.author == user.author %}
-                <a href="{% url 'ar_update' pk=p.id %}">Изменить</a>
-                {% endif %}
-                {% if perms.newsapp.delete_post and p.categoryType == 'NW' and p.author == user.author %}
-                <a href="{% url 'nw_delete' p.id %}">Удалить</a>
-                {% endif %}
-                {% if perms.newsapp.delete_post and p.categoryType == 'AR' and p.author == user.author %}
-                <a href="{% url 'ar_delete' p.id %}">Удалить</a>
+            {% if perms.newsapp.change_post and p.categoryType == 'NW' and p.author == user.author %}
+            <a href="{% url 'nw_update' pk=p.id %}">Изменить</a>
+            {% endif %}
+            {% if perms.newsapp.change_post and p.categoryType == 'AR' and p.author == user.author %}
+            <a href="{% url 'ar_update' pk=p.id %}">Изменить</a>
+            {% endif %}
+            {% if perms.newsapp.delete_post and p.categoryType == 'NW' and p.author == user.author %}
+            <a href="{% url 'nw_delete' p.id %}">Удалить</a>
+            {% endif %}
+            {% if perms.newsapp.delete_post and p.categoryType == 'AR' and p.author == user.author %}
+            <a href="{% url 'ar_delete' p.id %}">Удалить</a>
             {% endif %}
         </td>
     </tr>

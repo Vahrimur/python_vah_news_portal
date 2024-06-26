@@ -16,8 +16,8 @@ News & articles Search
 </form>
 <hr>
 {% if perms.newsapp.add_post %}
-    <a href="{% url 'nw_create' %}">Добавить новость</a>
-    <a href="{% url 'ar_create' %}">Добавить статью</a>
+<a href="{% url 'nw_create' %}">Добавить новость</a>
+<a href="{% url 'ar_create' %}">Добавить статью</a>
 {% endif %}
 {% if posts %}
 <h3>Результаты поиска:</h3>

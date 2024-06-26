@@ -40,9 +40,12 @@
                 <li class="nav-item">
                     <a class="nav-link" href="/articles/create/">AR-add</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/subscriptions/">Subscriptions</a>
+                </li>
                 {% if user.is_authenticated %}
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Logged in:  {{ request.user }}</a>
+                    <a class="nav-link" href="#">Logged in: {{ request.user }}</a>
                 </li>
                 {% endif %}
             </ul>
