@@ -33,7 +33,6 @@ class Author(models.Model):
 class Category(models.Model):
     name = models.CharField(max_length=64, unique=True)
 
-
     def __str__(self):
         return self.name
 
@@ -87,6 +86,8 @@ class Comment(models.Model):
     def dislike(self):
         self.rating -= 1
         self.save()
+
+
 class Subscription(models.Model):
     user = models.ForeignKey(
         to=User,
