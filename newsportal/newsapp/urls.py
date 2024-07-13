@@ -1,10 +1,12 @@
 from django.urls import path
+from django.views.decorators.cache import cache_page
+
 from .views import PostsList, PostDetail, PostsSearch, NWCreate, NWUpdate, NWDelete, ARCreate, ARUpdate, ARDelete, \
     author_now, subscriptions
 
 urlpatterns = [
     # Путь '' - для работы со всеми постами: новостями и статьями
-    path('', PostsList.as_view(), name='posts_list'),
+    path('', cache_page(60)(PostsList.as_view()), name='posts_list'),
     path('<int:pk>', PostDetail.as_view(), name='post_detail'),
     path('search', PostsSearch.as_view(), name='posts_search'),
     # Путь 'news/' - для работы только с новостями
